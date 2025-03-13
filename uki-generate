@@ -31,6 +31,8 @@ def main(args):
         section_name, size, start_vma = m.group(1), int(m.group(2), 16), int(m.group(3), 16)
         if section_name.startswith(b".annobin"):
             continue
+        if section_name.startswith(b".debug"):
+            continue
         max_vma = max(max_vma, size, + start_vma)
     def round_to_next(f: int) -> int:
         max_address = (0xffffffffffffffff & ~alignment_mask)
@@ -45,9 +47,8 @@ def main(args):
         "objcopy",
         f"--section-alignment={alignment_mask + 1}",
         f"--file-alignment={1 << 5}",
-        #"--remove-section=.buildid",
         "--remove-section=.annobin.*",
-        #"--strip-debug",
+        "--strip-all",
         f"--add-section=.config={cfg}",
         f"--change-section-vma=.config={base_address}",
         f"--add-section=.kernel={kern}",
